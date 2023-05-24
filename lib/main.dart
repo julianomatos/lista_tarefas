@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:lista_compras/task_manager.dart';
-import 'create_task.dart';
-import 'edit_task.dart';
+import 'screens/create_task.dart';
+import 'screens/edit_task.dart';
 import 'models/task.dart';
 
 
@@ -46,8 +46,6 @@ class _MainState extends State<Main> {
     tasks[index] = updatedTask;
   });
 }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +58,7 @@ class _MainState extends State<Main> {
     final task = tasks[index];
     return ListTile(
       title: Text(task.nome),
-      subtitle: Text(task.dataHora.toString()),
+      subtitle: Text(task.dataHora.toString().substring(0, 10)),
       trailing: IconButton(
         icon: Icon(Icons.delete),
         onPressed: () {
