@@ -1,8 +1,8 @@
 
 class Task {
-  String nome;
-  DateTime dataHora;
-  String geolocalizacao;
+  String name;
+  DateTime date;
+  String location;
 
-  Task({required this.nome, required this.dataHora, required this.geolocalizacao});
+  Task({required this.name, required this.date, required this.location});
 }

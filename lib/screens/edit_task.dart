@@ -1,127 +1,151 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors_in_immutables
+// ignore_for_file: use_key_in_widget_constructors, must_be_immutable
 
 import 'package:flutter/material.dart';
 import 'package:lista_compras/models/task.dart';
 import 'package:location/location.dart';
+import 'package:provider/provider.dart';
+import '../providers/task_provider.dart';
 
-class EditTask extends StatefulWidget {
-  final Task task;
-  final int index;
-  final Function(Task, int) callback;
-
-  EditTask({required this.task, required this.index, required this.callback});
-
-  @override
-  _EditTaskState createState() => _EditTaskState();
-}
-
-class _EditTaskState extends State<EditTask> {
-  late TextEditingController nameController;
-  late TextEditingController dateController;
-
-  late DateTime selectedDateTime;
-  late String selectedGeolocalizacao;
-
-  @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController(text: widget.task.nome);
-    dateController = TextEditingController(text: widget.task.dataHora.toString().substring(0,10));
-    selectedDateTime = widget.task.dataHora;
-    selectedGeolocalizacao = widget.task.geolocalizacao;
-  }
+class EditTask extends StatelessWidget {
+  DateTime? selectedDateTime;
+  final _date = TextEditingController();
+  final _name = TextEditingController();
+  final _location = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Editar Tarefa'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
+    int index = ModalRoute.of(context)!.settings.arguments as int;
+
+    return Consumer<TaskProvider>(builder: (context, taskProvider, _) {
+      Task task = taskProvider.showTask(index);
+      _name.text = task.name;
+      _date.text = task.date.toString().substring(0, 10);
+      selectedDateTime = task.date;
+      _location.text = task.location;
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Editar Tarefa'),
+        ),
+        body:
+            // Padding(
+            //   padding: const EdgeInsets.all(20.0),
+            //   child:
+            Column(
           children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Nome da Tarefa',
-              ),
+            ListTile(
+              title:TextField(
+                  style: const TextStyle(fontSize: 20),
+                  controller: _name,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome da Tarefa',
+                  ),
+                ),
             ),
-            SizedBox(height: 16.0),
-            TextField(
-              controller: dateController,
-              decoration: InputDecoration(
-                labelText: 'Data da Tarefa',
+            const SizedBox(height: 16.0),
+            ListTile(
+              title: TextField(
+                enabled: false,
+                controller: _date,
+                decoration: const InputDecoration(
+                  labelText: 'Data da Tarefa',
+                ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              child: Text('Selecione a Data'),
+              trailing: IconButton(
+              icon: const Icon(Icons.edit_calendar),
+              iconSize: 32,
+              color: Colors.black87,
               onPressed: () async {
                 final selectedDate = await showDatePicker(
                   context: context,
-                  initialDate: selectedDateTime,
+                  initialDate: selectedDateTime!,
                   firstDate: DateTime(2021),
                   lastDate: DateTime(2025),
                 );
                 if (selectedDate != null) {
-                  setState(() {
-                    selectedDateTime = DateTime(
-                      selectedDate.year,
-                      selectedDate.month,
-                      selectedDate.day,
-                    );
-                  });
+                  selectedDateTime = DateTime(
+                    selectedDate.year,
+                    selectedDate.month,
+                    selectedDate.day,
+                  );
+                  _date.text = selectedDateTime.toString().substring(0, 10);
                 }
               },
             ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              child: Text('Selecionar Geolocalização'),
-              onPressed: () async {
-                final currentPosition = await getLocation();
-                setState(() {
-                  selectedGeolocalizacao = currentPosition;
-                });
-              },
             ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              child: Text('Salvar Alterações'),
-              onPressed: () {
-                if (nameController.text.isNotEmpty &&
-                    selectedGeolocalizacao.isNotEmpty) {
-                  final updatedTask = Task(
-                    nome: nameController.text,
-                    dataHora: selectedDateTime,
-                    geolocalizacao: selectedGeolocalizacao,
-                  );
-                  widget.callback(updatedTask, widget.index);
-                  Navigator.pop(
-                      context, {'index': widget.index, 'task': updatedTask});
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: Text('Erro'),
-                      content: Text('Por favor, preencha todos os campos.'),
-                      actions: [
-                        TextButton(
-                          child: Text('OK'),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
+            const SizedBox(height: 16.0),
+            ListTile(
+                  title: TextField(
+                    enabled: false,
+                    controller: _location,
+                    decoration: const InputDecoration(
+                      labelText: "Localização",
                     ),
-                  );
-                }
-              },
-            ),
+                  ),
+                  trailing:IconButton(
+                  iconSize: 32,
+                  color: Colors.black87,
+                  icon: const Icon(Icons.location_on),
+                  onPressed: () async {
+                    final currentPosition = await getLocation();
+                    _location.text = currentPosition;
+                  },
+                ), 
+                ),
+            // ElevatedButton(
+
+            //   child: const Text('Selecionar Geolocalização'),
+            //   onPressed: () async {
+            //     final currentPosition = await getLocation();
+            //       _location.text = currentPosition;
+            //   },
+            // ),
+            // const SizedBox(height: 16.0),
           ],
+          // ),
         ),
-      ),
-    );
+        floatingActionButton: FloatingActionButton(
+          // style: ElevatedButton.styleFrom(
+          //   minimumSize: const Size(double.infinity, 50)),
+          // child: const Text('Salvar Alterações'),
+
+          child: const Icon(Icons.save),
+          onPressed: () {
+            if (_name.text.isNotEmpty && _location.text.isNotEmpty) {
+              final updatedTask = Task(
+                name: _name.text,
+                date: selectedDateTime!,
+                location: _location.text,
+              );
+              taskProvider.editTask(index, updatedTask);
+              Navigator.pop(context);
+            } else {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Erro'),
+                  content: const Text('Por favor, preencha todos os campos.'),
+                  actions: [
+                    TextButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ],
+                ),
+              );
+            }
+          },
+        ),
+         bottomNavigationBar: Container(
+            height: 40,
+            color: Theme.of(context).primaryColor,
+            child: const Center(
+              child: Text('Todos os direitos reservados.'),
+            ),
+          ),
+      );
+    });
   }
 
   Future<String> getLocation() async {

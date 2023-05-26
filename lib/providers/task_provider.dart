@@ -1,8 +1,19 @@
 import 'package:flutter/foundation.dart';
 import '../models/task.dart';
 
-class TaskManager with ChangeNotifier {
-  final List<Task> _tasks = [];
+class TaskProvider with ChangeNotifier {
+  final List<Task> _tasks = [
+    Task(
+      name: 'Terminar projeto da pós',
+      date: DateTime.now(),
+      location: '122333',
+    ),
+    Task(
+      name: 'Concluir capítulo 9 do curso',
+      date: DateTime.now(),
+      location: '454545',
+    ),
+  ];
 
   List<Task> get tasks => _tasks;
 
@@ -19,5 +30,9 @@ class TaskManager with ChangeNotifier {
   void deleteTask(int index) {
     _tasks.removeAt(index);
     notifyListeners();
+  }
+
+  Task showTask(int index) {
+    return _tasks[index];
   }
 }
