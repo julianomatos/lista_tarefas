@@ -1,9 +1,11 @@
-// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors
+// ignore_for_file: prefer_const_constructors, use_key_in_widget_constructors, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../components/footer.dart';
 import '../models/task.dart';
 import '../providers/task_provider.dart';
+import 'package:geocoding/geocoding.dart';
 
 class DeleteTask extends StatelessWidget {
   @override
@@ -22,30 +24,38 @@ class DeleteTask extends StatelessWidget {
           appBar: AppBar(
             title: const Text('Deletar Tarefa'),
           ),
-          body: Container(
-            margin: EdgeInsetsDirectional.all(50),
-            padding: EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.blue, // Cor da borda
-                width: 2.0,
-                // Espessura da borda
-              ),
-              borderRadius: BorderRadius.circular(10),
+          body: Card(
+            elevation: 10,
+            margin: const EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: 20,
             ),
-            height: 120,
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(fontSize: 20),
-                  ),
-                  Text(
-                    date,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
+            child: SizedBox(
+              // margin: EdgeInsetsDirectional.all(10),
+              // padding: EdgeInsets.all(20),
+              
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.blue, // Cor da borda
+              //     width: 2.0,
+              //   ),
+              //   borderRadius: BorderRadius.circular(10),
+              // ),
+              height: 150,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    Text(
+                      date,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -78,13 +88,7 @@ class DeleteTask extends StatelessWidget {
             },
             //Navigator.pop(context);
           ),
-          bottomNavigationBar: Container(
-            height: 40,
-            color: Theme.of(context).primaryColor,
-            child: Center(
-              child: Text('Todos os direitos reservados.'),
-            ),
-          ),
+          bottomNavigationBar: Footer(),
         );
       },
     );

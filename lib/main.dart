@@ -18,16 +18,24 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+//  final darkTheme = ThemeData(
+//   brightness: Brightness.dark,
+//   primaryColor: Colors.blueGrey[800], colorScheme: ColorScheme.fromSwatch().copyWith(secondary: Colors.deepPurple[400]),
+// );
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-    primaryColor: Colors.black12,
-    secondaryHeaderColor: Colors.white,
-    // Outras definições de cores do tema...
-  ),
+  //     theme: ThemeData(
+  //   primaryColor: Colors.black12,
+  //   secondaryHeaderColor: Colors.white,
+  // ),
+  theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue)
+            .copyWith(secondary: Colors.amber),
+        //
+      ),
       routes: {
-        RoutePaths.HOME: (context) => const ListTask(),
+        RoutePaths.HOME: (context) => ListTask(),
         RoutePaths.TASKTCREATESCREEN: (context) => CreateTask(),
         RoutePaths.TASKTUPDATESCREEN: (context) => EditTask(),
         RoutePaths.TASKDELETESCREEN: (context) => DeleteTask(),

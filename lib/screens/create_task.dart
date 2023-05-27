@@ -2,12 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:lista_compras/providers/task_provider.dart';
-import 'package:location/location.dart';
+import '../components/footer.dart';
 import '../models/task.dart';
 import 'package:provider/provider.dart';
+import '../utils/data_utils.dart';
+
+// import 'package:geocoding/geocoding.dart';
 
 class CreateTask extends StatelessWidget {
-  DateTime? selectedDateTime;
+  DateTime? selectedDate;
   final _date = TextEditingController();
   final _name = TextEditingController();
   final _location = TextEditingController();
@@ -18,28 +21,34 @@ class CreateTask extends StatelessWidget {
       builder: (context, taskProvider, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Criar Tarefa'),
+            title: Center(child: Text('Criar Tarefa')),
           ),
-          body: 
-          // Padding(
-          //   padding: EdgeInsets.all(20),
-            // child: 
-            Column(
-              children: [
-                ListTile(
+          body:
+              // Padding(
+              //   padding: EdgeInsets.all(20),
+              // child:
+              Column(
+            children: [
+              Card(
+                elevation: 8,
+                child: ListTile(
                   title: TextField(
+                    style: TextStyle(fontSize: 18),
                     controller: _name,
                     decoration: InputDecoration(
                       labelText: 'Nome da Tarefa',
                     ),
                   ),
                 ),
-                // SizedBox(height: 16.0),
-                //  Row(
-                //   children: [
-                //     Expanded(
-                //       child:
-                ListTile(
+              ),
+              // SizedBox(height: 16.0),
+              //  Row(
+              //   children: [
+              //     Expanded(
+              //       child:
+              Card(
+                elevation: 8,
+                child: ListTile(
                   // 0minLeadingWidth: 0,
                   title: TextField(
                     enabled: false,
@@ -49,32 +58,29 @@ class CreateTask extends StatelessWidget {
                     ),
                   ),
                   trailing: IconButton(
-                    
                     icon: Icon(Icons.edit_calendar),
                     iconSize: 32,
                     color: Colors.black87,
                     onPressed: () async {
-                    final selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2021),
-                      lastDate: DateTime(2025),
-                    );
-                    if (selectedDate != null) {
-                      selectedDateTime = DateTime(
-                        selectedDate.year,
-                        selectedDate.month,
-                        selectedDate.day,
+                      selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2021),
+                        lastDate: DateTime(2024),
                       );
-                      _date.text = selectedDateTime.toString().substring(0, 10);
-                      print(_date.text);
-                    }
-                  }, ),
+                      if (selectedDate != null) {
+                        _date.text = DataUtils.formatDate(selectedDate!);
+                      }
+                    },
+                  ),
                 ),
-                // ),
-                SizedBox(height: 16.0),
-                
-                ListTile(
+              ),
+              // ),
+              SizedBox(height: 16.0), //Criando espaço entre os campos.
+
+              Card(
+                elevation: 8,
+                child: ListTile(
                   title: TextField(
                     enabled: false,
                     controller: _location,
@@ -82,31 +88,32 @@ class CreateTask extends StatelessWidget {
                       labelText: "Localização",
                     ),
                   ),
-                  trailing:IconButton(
-                  // style: ElevatedButton.styleFrom(
-                  //   minimumSize: Size(double.infinity, 40),
-                  // ),
-                  iconSize: 32,
-                  color: Colors.black87,
-                  icon: Icon(Icons.location_on),
-                  onPressed: () async {
-                    final currentPosition = await getLocation();
-                    _location.text = currentPosition;
-                  },
-                ), 
+                  trailing: IconButton(
+                    // style: ElevatedButton.styleFrom(
+                    //   minimumSize: Size(double.infinity, 40),
+                    // ),
+                    iconSize: 32,
+                    color: Colors.black87,
+                    icon: Icon(Icons.location_on),
+                    onPressed: () async {
+                      final currentPosition = await DataUtils.getLocation();
+                      _location.text = currentPosition;
+                    },
+                  ),
                 ),
-              ],
+              ),
+            ],
             // ),
           ),
           floatingActionButton: FloatingActionButton(
             child: Icon(Icons.save),
             onPressed: () {
               if (_name.text.isNotEmpty &&
-                  selectedDateTime != null &&
+                  _date.text.isNotEmpty &&
                   _location.text.isNotEmpty) {
                 final task = Task(
                   name: _name.text,
-                  date: selectedDateTime!,
+                  date: selectedDate!,
                   location: _location.text,
                 );
 
@@ -131,35 +138,9 @@ class CreateTask extends StatelessWidget {
               }
             },
           ),
-          bottomNavigationBar: Container(
-            height: 40,
-            color: Theme.of(context).primaryColor,
-            child: Center(
-              child: Text('Todos os direitos reservados.'),
-            ),
-          ),
+          bottomNavigationBar: Footer(),
         );
       },
     );
-  }
-
-  Future<String> getLocation() async {
-    Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) Future.value("");
-    }
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) Future.value("");
-    }
-    locationData = await location.getLocation();
-    return "${locationData.latitude} : ${locationData.longitude}";
   }
 }

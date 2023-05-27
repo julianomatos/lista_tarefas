@@ -2,12 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:lista_compras/models/task.dart';
-import 'package:location/location.dart';
 import 'package:provider/provider.dart';
+import '../components/footer.dart';
 import '../providers/task_provider.dart';
+import '../utils/data_utils.dart';
 
 class EditTask extends StatelessWidget {
-  DateTime? selectedDateTime;
+  DateTime? selectedDate;
   final _date = TextEditingController();
   final _name = TextEditingController();
   final _location = TextEditingController();
@@ -19,8 +20,8 @@ class EditTask extends StatelessWidget {
     return Consumer<TaskProvider>(builder: (context, taskProvider, _) {
       Task task = taskProvider.showTask(index);
       _name.text = task.name;
-      _date.text = task.date.toString().substring(0, 10);
-      selectedDateTime = task.date;
+      _date.text = DataUtils.formatDate(task.date);
+      selectedDate = task.date;
       _location.text = task.location;
       return Scaffold(
         appBar: AppBar(
@@ -32,65 +33,67 @@ class EditTask extends StatelessWidget {
             //   child:
             Column(
           children: [
-            ListTile(
-              title:TextField(
-                  style: const TextStyle(fontSize: 20),
+            Card(
+              elevation: 8,
+              child: ListTile(
+                title: TextField(
+                  style: const TextStyle(fontSize: 18),
                   controller: _name,
                   decoration: const InputDecoration(
                     labelText: 'Nome da Tarefa',
                   ),
                 ),
+              ),
             ),
             const SizedBox(height: 16.0),
-            ListTile(
-              title: TextField(
-                enabled: false,
-                controller: _date,
-                decoration: const InputDecoration(
-                  labelText: 'Data da Tarefa',
+            Card(
+              elevation: 8,
+              child: ListTile(
+                title: TextField(
+                  enabled: false,
+                  controller: _date,
+                  decoration: const InputDecoration(
+                    labelText: 'Data da Tarefa',
+                  ),
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.edit_calendar),
+                  iconSize: 32,
+                  color: Colors.black87,
+                  onPressed: () async {
+                    selectedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedDate!,
+                      firstDate: DateTime(2021),
+                      lastDate: DateTime(2025),
+                    );
+                    _date.text = DataUtils.formatDate(selectedDate!);
+                  },
                 ),
               ),
-              trailing: IconButton(
-              icon: const Icon(Icons.edit_calendar),
-              iconSize: 32,
-              color: Colors.black87,
-              onPressed: () async {
-                final selectedDate = await showDatePicker(
-                  context: context,
-                  initialDate: selectedDateTime!,
-                  firstDate: DateTime(2021),
-                  lastDate: DateTime(2025),
-                );
-                if (selectedDate != null) {
-                  selectedDateTime = DateTime(
-                    selectedDate.year,
-                    selectedDate.month,
-                    selectedDate.day,
-                  );
-                  _date.text = selectedDateTime.toString().substring(0, 10);
-                }
-              },
-            ),
             ),
             const SizedBox(height: 16.0),
-            ListTile(
-                  title: TextField(
-                    enabled: false,
-                    controller: _location,
-                    decoration: const InputDecoration(
-                      labelText: "Localização",
-                    ),
+            Card(
+              elevation: 8,
+              child: ListTile(
+                title: TextField(
+                  enabled: false,
+                  controller: _location,
+                  decoration: const InputDecoration(
+                    labelText: "Localização",
                   ),
-                  trailing:IconButton(
+                ),
+                trailing: IconButton(
                   iconSize: 32,
                   color: Colors.black87,
                   icon: const Icon(Icons.location_on),
                   onPressed: () async {
-                    final currentPosition = await getLocation();
+                    final currentPosition = await DataUtils.getLocation();
                     _location.text = currentPosition;
                   },
-                ), 
                 ),
+              ),
+            ),
             // ElevatedButton(
 
             //   child: const Text('Selecionar Geolocalização'),
@@ -113,7 +116,7 @@ class EditTask extends StatelessWidget {
             if (_name.text.isNotEmpty && _location.text.isNotEmpty) {
               final updatedTask = Task(
                 name: _name.text,
-                date: selectedDateTime!,
+                date: selectedDate!,
                 location: _location.text,
               );
               taskProvider.editTask(index, updatedTask);
@@ -137,34 +140,8 @@ class EditTask extends StatelessWidget {
             }
           },
         ),
-         bottomNavigationBar: Container(
-            height: 40,
-            color: Theme.of(context).primaryColor,
-            child: const Center(
-              child: Text('Todos os direitos reservados.'),
-            ),
-          ),
+        bottomNavigationBar: const Footer(),
       );
     });
-  }
-
-  Future<String> getLocation() async {
-    Location location = Location();
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) Future.value("");
-    }
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) Future.value("");
-    }
-    locationData = await location.getLocation();
-    return "${locationData.latitude} : ${locationData.longitude}";
   }
 }
