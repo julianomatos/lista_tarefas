@@ -10,7 +10,8 @@ import '../utils/data_utils.dart';
 // import 'package:geocoding/geocoding.dart';
 
 class CreateTask extends StatelessWidget {
-  DateTime? selectedDate;
+  DateTime? selectedDateTime;
+  // TimeOfDay? selectedTime;
   final _date = TextEditingController();
   final _name = TextEditingController();
   final _location = TextEditingController();
@@ -21,7 +22,7 @@ class CreateTask extends StatelessWidget {
       builder: (context, taskProvider, _) {
         return Scaffold(
           appBar: AppBar(
-            title: Center(child: Text('Criar Tarefa')),
+            title: Text('Criar Tarefa'),
           ),
           body:
               // Padding(
@@ -62,14 +63,25 @@ class CreateTask extends StatelessWidget {
                     iconSize: 32,
                     color: Colors.black87,
                     onPressed: () async {
-                      selectedDate = await showDatePicker(
+                      
+                      final selectedDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
                         firstDate: DateTime(2021),
                         lastDate: DateTime(2024),
                       );
-                      if (selectedDate != null) {
-                        _date.text = DataUtils.formatDate(selectedDate!);
+                      final selectedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now());
+                      if (selectedDate != null && selectedTime != null) {
+                        selectedDateTime = DateTime(
+                            selectedDate.year,
+                            selectedDate.month,
+                            selectedDate.day,
+                            selectedTime.hour,
+                            selectedTime.minute,
+                          );
+                        _date.text = DataUtils.formatDate(selectedDateTime!);
                       }
                     },
                   ),
@@ -113,7 +125,7 @@ class CreateTask extends StatelessWidget {
                   _location.text.isNotEmpty) {
                 final task = Task(
                   name: _name.text,
-                  date: selectedDate!,
+                  date: selectedDateTime!,
                   location: _location.text,
                 );
 

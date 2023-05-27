@@ -5,21 +5,21 @@ class TaskProvider with ChangeNotifier {
   final List<Task> _tasks = [
     Task(
       name: 'Terminar projeto da pós',
-      date: DateTime(2023, 05, 29),
+      date: DateTime(2023, 05, 29, 17, 00),
       location: '122333',
     ),
     Task(
       name: 'Concluir capítulo 9 do curso',
-      date: DateTime(2023, 05, 27),
+      date: DateTime(2023, 05, 27, 20, 00),
       location: '454545',
     ),Task(
       name: 'Compras no mercado',
-      date: DateTime(2023, 05, 26),
+      date: DateTime(2023, 05, 26, 11, 20),
       location: '334455',
     ),
     Task(
       name: 'Ir ao dentista',
-      date: DateTime(2023, 05, 24),
+      date: DateTime(2023, 05, 24, 8, 30),
       location: '667788',
     ),
   ];

@@ -8,7 +8,7 @@ import '../providers/task_provider.dart';
 import '../utils/data_utils.dart';
 
 class EditTask extends StatelessWidget {
-  DateTime? selectedDate;
+  DateTime? selectedDateTime;
   final _date = TextEditingController();
   final _name = TextEditingController();
   final _location = TextEditingController();
@@ -21,7 +21,7 @@ class EditTask extends StatelessWidget {
       Task task = taskProvider.showTask(index);
       _name.text = task.name;
       _date.text = DataUtils.formatDate(task.date);
-      selectedDate = task.date;
+      selectedDateTime = task.date;
       _location.text = task.location;
       return Scaffold(
         appBar: AppBar(
@@ -61,13 +61,26 @@ class EditTask extends StatelessWidget {
                   iconSize: 32,
                   color: Colors.black87,
                   onPressed: () async {
-                    selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate!,
-                      firstDate: DateTime(2021),
-                      lastDate: DateTime(2025),
-                    );
-                    _date.text = DataUtils.formatDate(selectedDate!);
+                    final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2021),
+                        lastDate: DateTime(2024),
+                      );
+                      // ignore: use_build_context_synchronously
+                      final selectedTime = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now());
+                      if (selectedDate != null && selectedTime != null) {
+                        selectedDateTime = DateTime(
+                            selectedDate.year,
+                            selectedDate.month,
+                            selectedDate.day,
+                            selectedTime.hour,
+                            selectedTime.minute,
+                          );
+                        _date.text = DataUtils.formatDate(selectedDateTime!);
+                      }
                   },
                 ),
               ),
@@ -116,7 +129,7 @@ class EditTask extends StatelessWidget {
             if (_name.text.isNotEmpty && _location.text.isNotEmpty) {
               final updatedTask = Task(
                 name: _name.text,
-                date: selectedDate!,
+                date: selectedDateTime!,
                 location: _location.text,
               );
               taskProvider.editTask(index, updatedTask);
